@@ -7,28 +7,27 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.http.HttpMethod;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(jsr250Enabled = true) // Übernommen aus der Demo-App (erlaubt @RolesAllowed)
+@EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
 
-    // Die Gästeliste aus deiner Demo-App
     private static final String[] AUTH_WHITELIST = {
             "/",
             "/v3/api-docs/**",
@@ -40,49 +39,55 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-        requestHandler.setCsrfRequestAttributeName(null);
+        // CSRF Handler entfernt, da wir CSRF für die API-Entwicklung deaktivieren
 
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(AUTH_WHITELIST).permitAll() // Swagger und Co. für alle erlauben
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers("/api/products/**").hasRole("admin")
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers("/api/categories/**").hasRole("admin")
                         .requestMatchers("/api/customers/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Jeder darf Kategorien sehen
-                        .requestMatchers("/api/categories/**").hasRole("admin") // Nur Admins dürfen erstellen/löschen
-                        .anyRequest().authenticated() // Alles andere absperren
+                        .requestMatchers("/api/orders/**").authenticated()
+                        .anyRequest().authenticated()
                 )
-                // Keycloak Token-Prüfung aktivieren und unseren Übersetzer einbinden
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                // CSRF und CORS aus deiner Demo-App übernehmen
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).csrfTokenRequestHandler(requestHandler))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
+                        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                // CSRF deaktivieren vereinfacht Postman-Tests massiv (invalidates "Write-only object" warning)
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults());
 
         return http.build();
     }
 
-    // CORS Config aus der Demo-App (erlaubt Anfragen von localhost:4200)
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS")
+                        .allowedMethods("GET", "PUT", "POST", "DELETE", "PATCH", "OPTIONS")
                         .allowedOrigins("http://localhost:4200");
             }
         };
     }
 
-    // Unser Rollen-Übersetzer für Keycloak (inline, damit du keine extra Klasse brauchst)
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = jwt -> {
             Map<String, Object> realmAccess = jwt.getClaim("realm_access");
             if (realmAccess == null || !realmAccess.containsKey("roles")) {
-                return List.of();
+                return Collections.emptyList();
             }
-            List<String> roles = (List<String>) realmAccess.get("roles");
+
+            // Sicherer Cast von Object zu List
+            Object rolesObj = realmAccess.get("roles");
+            if (!(rolesObj instanceof List<?> roles)) {
+                return Collections.emptyList();
+            }
+
             return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toString()))
                     .collect(Collectors.toList());
         };
 

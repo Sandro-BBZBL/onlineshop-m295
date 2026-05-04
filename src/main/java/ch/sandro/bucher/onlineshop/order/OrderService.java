@@ -2,9 +2,10 @@ package ch.sandro.bucher.onlineshop.order;
 
 import ch.sandro.bucher.onlineshop.product.Product;
 import ch.sandro.bucher.onlineshop.product.ProductRepository;
+import ch.sandro.bucher.onlineshop.customer.Customer;
+import ch.sandro.bucher.onlineshop.customer.CustomerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -12,40 +13,39 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository; // Hinzugefügt
 
-    // Konstruktor-Injektion: Wir holen uns Zugriff auf Bestellungen UND Produkte
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.customerRepository = customerRepository;
     }
 
-    // Eine Bestellung aufgeben
     @Transactional
     public Order createOrder(Long productId, Integer menge, String benutzername) {
-        // 1. Produkt in der Datenbank suchen
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Produkt mit ID " + productId + " nicht gefunden."));
+                .orElseThrow(() -> new RuntimeException("Produkt nicht gefunden."));
 
-        // 2. Prüfen, ob noch genug Bestand da ist
+        // NEU: Wir suchen den echten Customer anhand des Namens
+        Customer customer = customerRepository.findByUsername(benutzername)
+                .orElseThrow(() -> new RuntimeException("Kunde " + benutzername + " nicht gefunden."));
+
         if (product.getBestand() < menge) {
-            throw new RuntimeException("Nicht genügend Bestand! Verfügbar: " + product.getBestand());
+            throw new RuntimeException("Nicht genügend Bestand!");
         }
 
-        // 3. Bestand reduzieren und Produkt aktualisieren
         product.setBestand(product.getBestand() - menge);
         productRepository.save(product);
 
-        // 4. Die eigentliche Bestellung erstellen und speichern
-        Order order = new Order(product, menge, benutzername);
+        // Jetzt übergeben wir das customer-OBJEKT, nicht den String
+        Order order = new Order(product, menge, customer);
         return orderRepository.save(order);
     }
 
-    // Alle Bestellungen eines bestimmten Benutzers finden
     public List<Order> getOrdersByBenutzername(String benutzername) {
-        return orderRepository.findByBenutzername(benutzername);
+        return orderRepository.findByCustomer_Username(benutzername);
     }
 
-    // Alle Bestellungen anzeigen (später nützlich für den Admin)
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }

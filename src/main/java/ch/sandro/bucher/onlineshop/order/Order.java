@@ -1,18 +1,17 @@
 package ch.sandro.bucher.onlineshop.order;
 
 import ch.sandro.bucher.onlineshop.product.Product;
+import ch.sandro.bucher.onlineshop.customer.Customer; // Import der Customer-Klasse
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "bestellungen") // WICHTIG: In SQL ist "order" ein reserviertes Wort, deshalb nennen wir die Tabelle "bestellungen"
+@Table(name = "bestellungen")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Eine Bestellung gehört zu einem Produkt. @ManyToOne bedeutet:
-    // Viele Bestellungen können dasselbe Produkt beinhalten.
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -20,18 +19,20 @@ public class Order {
     @Column(nullable = false)
     private Integer menge;
 
-    @Column(nullable = false)
-    private String benutzername; // Hier speichern wir später den Keycloak-Usernamen ab
+    // Wir ersetzen den String "benutzername" durch die Customer-Beziehung
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
     // --- Leerer Standard-Konstruktor ---
     public Order() {
     }
 
-    // --- Konstruktor mit Feldern ---
-    public Order(Product product, Integer menge, String benutzername) {
+    // --- Konstruktor mit Feldern (angepasst auf Customer) ---
+    public Order(Product product, Integer menge, Customer customer) {
         this.product = product;
         this.menge = menge;
-        this.benutzername = benutzername;
+        this.customer = customer;
     }
 
     // --- Getter und Setter ---
@@ -59,11 +60,11 @@ public class Order {
         this.menge = menge;
     }
 
-    public String getBenutzername() {
-        return benutzername;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setBenutzername(String benutzername) {
-        this.benutzername = benutzername;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 }
