@@ -16,6 +16,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.http.HttpMethod;
 
 import java.util.Collection;
 import java.util.List;
@@ -44,6 +45,9 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITELIST).permitAll() // Swagger und Co. für alle erlauben
+                        .requestMatchers("/api/customers/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Jeder darf Kategorien sehen
+                        .requestMatchers("/api/categories/**").hasRole("admin") // Nur Admins dürfen erstellen/löschen
                         .anyRequest().authenticated() // Alles andere absperren
                 )
                 // Keycloak Token-Prüfung aktivieren und unseren Übersetzer einbinden

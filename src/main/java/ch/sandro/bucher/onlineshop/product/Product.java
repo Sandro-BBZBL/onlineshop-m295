@@ -1,5 +1,6 @@
 package ch.sandro.bucher.onlineshop.product;
 
+import ch.sandro.bucher.onlineshop.category.Category; // Wichtig: Den Import deiner neuen Entity hinzufügen
 import jakarta.persistence.*;
 
 @Entity
@@ -19,15 +20,21 @@ public class Product {
     @Column(nullable = false)
     private Integer bestand;
 
-    // --- Leerer Standard-Konstruktor (Wichtig für Spring Boot) ---
+    // Die Verknüpfung zur Kategorie
+    @ManyToOne
+    @JoinColumn(name = "category_id") // Erzeugt eine Fremdschlüssel-Spalte in der Tabelle 'produkte'
+    private Category category;
+
+    // --- Leerer Standard-Konstruktor ---
     public Product() {
     }
 
-    // --- Konstruktor mit allen Feldern ---
-    public Product(String name, Double preis, Integer bestand) {
+    // --- Konstruktor mit Feldern (Kategorie optional hinzugefügt) ---
+    public Product(String name, Double preis, Integer bestand, Category category) {
         this.name = name;
         this.preis = preis;
         this.bestand = bestand;
+        this.category = category;
     }
 
     // --- Getter und Setter ---
@@ -61,5 +68,13 @@ public class Product {
 
     public void setBestand(Integer bestand) {
         this.bestand = bestand;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

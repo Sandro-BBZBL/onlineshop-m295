@@ -1,10 +1,11 @@
 package ch.sandro.bucher.onlineshop.category;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@Tag(name = "Category", description = "Endpoints für Kategorien")
 public class CategoryController {
 
     private final CategoryService categoryService;
