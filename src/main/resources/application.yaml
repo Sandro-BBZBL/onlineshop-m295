@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: onlineshop
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/onlineshop
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/onlineshop
+          jwk-set-uri: http://localhost:8080/realms/onlineshop/protocol/openid-connect/certs
+
+server:
+  port: 8081
