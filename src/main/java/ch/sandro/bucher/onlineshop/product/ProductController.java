@@ -17,7 +17,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // Jeder eingeloggte User darf Produkte sehen (kein extra Schild nötig)
+    // Jeder eingeloggte User darf Produkte sehen
     @GetMapping
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
@@ -30,7 +30,7 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // TÜRSTEHER: Nur Admins dürfen Produkte anlegen!
+    //Nur Admins dürfen Produkte anlegen
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('admin')")
@@ -38,7 +38,7 @@ public class ProductController {
         return productService.createProduct(product);
     }
 
-    // TÜRSTEHER: Nur Admins dürfen Produkte ändern!
+    //Nur Admins dürfen Produkte ändern
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
@@ -49,7 +49,7 @@ public class ProductController {
         }
     }
 
-    // TÜRSTEHER: Nur Admins dürfen Produkte löschen!
+    //Nur Admins dürfen Produkte löschen!
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('admin')")
