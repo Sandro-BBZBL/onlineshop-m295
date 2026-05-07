@@ -31,9 +31,11 @@ public class SecurityConfig {
     private static final String[] AUTH_WHITELIST = {
             "/",
             "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
             "/v3/api-docs.yaml",
+            "/swagger-ui/**",
+            "/swagger-ui/index.html", // Explizit hinzufügen
+            "/swagger-resources/**",  // Wichtig für die UI-Konfiguration
+            "/webjars/**",            // Wichtig für die CSS/JS Files von Swagger
             "/hello"
     };
 

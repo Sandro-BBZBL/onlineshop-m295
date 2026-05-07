@@ -25,7 +25,7 @@ class DBTests {
     @Test
     void insertData() {
         // Produkt Test
-        Product monitor = new Product("Gaming Monitor", 299.0, 5, null);
+        Product monitor = new Product("Monitor", 299.0, 5, null);
         Product savedMonitor = this.productRepository.save(monitor);
         Assertions.assertNotNull(savedMonitor.getId());
 
