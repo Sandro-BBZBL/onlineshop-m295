@@ -11,6 +11,7 @@ Keycloak Einstellungen
 -	Users:
   o	test-admin
     - pwd: admin
+
   o	test-user
     - pwd: admin
 
