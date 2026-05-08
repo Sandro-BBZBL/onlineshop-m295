@@ -33,15 +33,15 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/v3/api-docs.yaml",
             "/swagger-ui/**",
-            "/swagger-ui/index.html", // Explizit hinzufügen
-            "/swagger-resources/**",  // Wichtig für die UI-Konfiguration
-            "/webjars/**",            // Wichtig für die CSS/JS Files von Swagger
+            "/swagger-ui/index.html",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/webjars/**",
             "/hello"
     };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // CSRF Handler entfernt, da wir CSRF für die API-Entwicklung deaktivieren
 
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(AUTH_WHITELIST).permitAll()
@@ -55,7 +55,6 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
                         jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                // CSRF deaktivieren vereinfacht Postman-Tests massiv (invalidates "Write-only object" warning)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults());
 
@@ -82,7 +81,6 @@ public class SecurityConfig {
                 return Collections.emptyList();
             }
 
-            // Sicherer Cast von Object zu List
             Object rolesObj = realmAccess.get("roles");
             if (!(rolesObj instanceof List<?> roles)) {
                 return Collections.emptyList();

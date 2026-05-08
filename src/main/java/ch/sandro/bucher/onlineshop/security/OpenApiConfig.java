@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(title = "Onlineshop API", version = "v1"),
-        // Das sagt Swagger: "Alle Endpunkte brauchen standardmäßig dieses Schloss"
         security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(

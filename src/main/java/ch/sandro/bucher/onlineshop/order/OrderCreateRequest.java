@@ -6,7 +6,7 @@ public class OrderCreateRequest {
     private Integer menge;
     private String benutzername;
 
-    // --- Getter und Setter ---
+    //Getter und Setter
     public Long getProductId() {
         return productId;
     }

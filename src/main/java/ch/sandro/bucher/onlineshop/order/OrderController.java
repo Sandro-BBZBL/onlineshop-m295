@@ -17,7 +17,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // TÜRSTEHER: Nur normale User machen hier Bestellungen
+    //Nur User machen hier Bestellungen
     @PostMapping
     @PreAuthorize("hasRole('user')")
     public ResponseEntity<?> createOrder(@RequestBody OrderCreateRequest request) {
@@ -33,14 +33,14 @@ public class OrderController {
         }
     }
 
-    // TÜRSTEHER: Nur Admins dürfen eine Liste ALLER Bestellungen sehen
+    //Nur Admins dürfen eine Liste ALLER Bestellungen sehen
     @GetMapping
     @PreAuthorize("hasRole('admin')")
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
 
-    // TÜRSTEHER: User dürfen ihre eigenen sehen, Admins dürfen auch reinschauen
+    //User dürfen ihre eigenen sehen, Admins dürfen auch reinschauen
     @GetMapping("/user/{benutzername}")
     @PreAuthorize("hasRole('user') or hasRole('admin')")
     public List<Order> getOrdersByUser(@PathVariable String benutzername) {

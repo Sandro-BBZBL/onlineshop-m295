@@ -13,7 +13,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
-    private final CustomerRepository customerRepository; // Hinzugefügt
+    private final CustomerRepository customerRepository;
 
     public OrderService(OrderRepository orderRepository, ProductRepository productRepository, CustomerRepository customerRepository) {
         this.orderRepository = orderRepository;
@@ -26,7 +26,6 @@ public class OrderService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Produkt nicht gefunden."));
 
-        // NEU: Wir suchen den echten Customer anhand des Namens
         Customer customer = customerRepository.findByUsername(benutzername)
                 .orElseThrow(() -> new RuntimeException("Kunde " + benutzername + " nicht gefunden."));
 
@@ -37,7 +36,6 @@ public class OrderService {
         product.setBestand(product.getBestand() - menge);
         productRepository.save(product);
 
-        // Jetzt übergeben wir das customer-OBJEKT, nicht den String
         Order order = new Order(product, menge, customer);
         return orderRepository.save(order);
     }

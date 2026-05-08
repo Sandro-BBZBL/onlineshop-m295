@@ -25,11 +25,11 @@ public class Product {
     @JoinColumn(name = "category_id") // Erzeugt eine Fremdschlüssel-Spalte in der Tabelle 'produkte'
     private Category category;
 
-    // --- Leerer Standard-Konstruktor ---
+    //Leerer Standard-Konstruktor
     public Product() {
     }
 
-    // --- Konstruktor mit Feldern (Kategorie optional hinzugefügt) ---
+    //Konstruktor mit Feldern
     public Product(String name, Double preis, Integer bestand, Category category) {
         this.name = name;
         this.preis = preis;
@@ -37,7 +37,7 @@ public class Product {
         this.category = category;
     }
 
-    // --- Getter und Setter ---
+    //Getter und Setter
     public Long getId() {
         return id;
     }

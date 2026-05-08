@@ -33,7 +33,6 @@ class DBTests {
         Customer customer = new Customer();
         customer.setUsername("junit-user");
         customer.setCity("Bern");
-        // Falls dein Customer Pflichtfelder hat (E-Mail etc.), musst du sie hier setzen!
 
         Customer savedCustomer = this.customerRepository.save(customer);
         Assertions.assertNotNull(savedCustomer.getId());

@@ -19,23 +19,23 @@ public class Order {
     @Column(nullable = false)
     private Integer menge;
 
-    // Wir ersetzen den String "benutzername" durch die Customer-Beziehung
+    //ersetzen des Strings "benutzername" durch die Customer-Beziehung
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    // --- Leerer Standard-Konstruktor ---
+    //Leerer Standard-Konstruktor
     public Order() {
     }
 
-    // --- Konstruktor mit Feldern (angepasst auf Customer) ---
+    //Konstruktor mit Feldern
     public Order(Product product, Integer menge, Customer customer) {
         this.product = product;
         this.menge = menge;
         this.customer = customer;
     }
 
-    // --- Getter und Setter ---
+    //Getter und Setter
     public Long getId() {
         return id;
     }
