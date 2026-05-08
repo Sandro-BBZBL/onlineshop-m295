@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@Tag(name = "Product", description = "Endpoints für die Verwaltung von Produkten")
+@Tag(name = "Product", description = "Verwaltung von Produkten")
 public class ProductController {
 
     private final ProductService productService;
@@ -45,7 +45,7 @@ public class ProductController {
     @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Neues Produkt erstellen", description = "Legt ein neues Produkt an. Zugriff nur für Admins.")
     @ApiResponse(responseCode = "201", description = "Produkt erfolgreich erstellt")
-    @ApiResponse(description = "Keine Berechtigung", responseCode = "403")
+    @ApiResponse(responseCode = "403", description = "Keine Berechtigung")
     public Product createProduct(@RequestBody Product product) {
         return productService.createProduct(product);
     }
@@ -70,7 +70,7 @@ public class ProductController {
     @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Produkt löschen", description = "Entfernt ein Produkt aus der Datenbank. Zugriff nur für Admins.")
     @ApiResponse(responseCode = "204", description = "Produkt erfolgreich gelöscht")
-    @ApiResponse(responseCode = "500", description = "Löschen fehlgeschlagen (z.B. wegen bestehender Bestellungen)")
+    @ApiResponse(responseCode = "500", description = "Löschen fehlgeschlagen")
     public void deleteProduct(
             @Parameter(description = "ID des zu löschenden Produkts") @PathVariable Long id) {
         productService.deleteProduct(id);
